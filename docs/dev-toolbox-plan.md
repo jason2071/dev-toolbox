@@ -18,10 +18,10 @@
 
 | Layer    | Tech                        | เหตุผล                                      |
 |----------|-----------------------------|---------------------------------------------|
-| Backend  | Go (Gin)               | core logic แต่ละ feature, expose local HTTP API |
+| Backend  | Go (Gin)                    | core logic แต่ละ feature, expose local HTTP API |
 | Frontend | React + Vite + TypeScript   | UI shell + หน้าแต่ละ tool                    |
 | Run      | localhost (`:8080`)         | เริ่มง่ายสุด ไม่ต้องเรียน Tauri ก่อน          |
-| Desktop  | Tauri (ภายหลัง)             | ห่อเป็น desktop app เบาๆ ถ้าอยากได้           |
+| Desktop  | Tauri (ภายหลัง)              | ห่อเป็น desktop app เบาๆ ถ้าอยากได้           |
 
 ---
 
