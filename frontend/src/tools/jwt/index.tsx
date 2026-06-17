@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
 import { ui, badge } from "../../ui";
@@ -28,85 +28,122 @@ function humanLeft(s: number): string {
   return parts.join(" ");
 }
 
+// looksLikeJwt is a cheap client-side gate so we only call the backend once the
+// token has the three dot-separated segments — avoids decoding while typing.
+function looksLikeJwt(token: string): boolean {
+  const parts = token.trim().split(".");
+  return parts.length === 3 && parts.every((p) => p.length > 0);
+}
+
 function JwtPage() {
   const [token, setToken] = useIdbState("jwt.token", "");
   const [res, setRes] = useState<DecodeResult | null>(null);
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
 
-  async function decode() {
-    setBusy(true);
-    setError("");
-    try {
-      const r = await cachedPost<DecodeResult>("/api/tools/jwt/decode", {
-        token,
-      });
-      setRes(r);
-    } catch (e) {
+  // Auto-decode: when the token has a valid JWT shape, decode after a short
+  // debounce. Partial input is ignored silently.
+  useEffect(() => {
+    if (token.trim() === "") {
       setRes(null);
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
+      setError("");
+      return;
     }
-  }
+    if (!looksLikeJwt(token)) {
+      return;
+    }
+
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const r = await cachedPost<DecodeResult>("/api/tools/jwt/decode", {
+          token,
+        });
+        if (!cancelled) {
+          setRes(r);
+          setError("");
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setRes(null);
+          setError(e instanceof Error ? e.message : String(e));
+        }
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [token]);
 
   return (
-    <section className={ui.section}>
+    <section className="flex w-full flex-1 flex-col">
       <h1 className={ui.h1}>JWT Decoder</h1>
       <p className={ui.lead}>
         Decode a JWT and compare{" "}
         <code className="rounded bg-slate-200 px-1 font-mono text-[12px] text-slate-700">
           exp
         </code>{" "}
-        against now. Signature is not verified.
+        against now — decodes automatically. Signature is not verified.
       </p>
 
-      <div className={`${ui.field} mt-6`}>
-        <label htmlFor="jwt-input" className={ui.label}>
-          Token
-        </label>
-        <textarea
-          id="jwt-input"
-          rows={5}
-          className={ui.input}
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="eyJhbGciOi…"
-        />
-      </div>
+      <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
+        {/* left: token input */}
+        <div className={`${ui.field} min-h-0`}>
+          <label htmlFor="jwt-input" className={ui.label}>
+            Token
+          </label>
+          <textarea
+            id="jwt-input"
+            className={`${ui.input} min-h-0 flex-1`}
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="eyJhbGciOi…"
+          />
+        </div>
 
-      <div className={ui.row}>
-        <button className={ui.primary} onClick={decode} disabled={busy}>
-          {busy ? "Decoding…" : "Decode"}
-        </button>
-      </div>
-
-      {error && <div className={ui.error}>{error}</div>}
-
-      {res && (
-        <>
-          {res.expiry && (
-            <p className="mb-4 flex items-center gap-2">
-              <span className={badge(!res.expiry.expired)}>
-                {res.expiry.expired ? "EXPIRED" : "VALID"}
-              </span>
-              <span className="text-sm text-slate-500">
-                {res.expiry.expired ? "expired " : "expires in "}
-                {humanLeft(res.expiry.secondsLeft)} ·{" "}
-                {new Date(res.expiry.expiresAt).toLocaleString()}
-              </span>
-            </p>
+        {/* right: decoded output */}
+        <div className="flex min-h-0 flex-col gap-4">
+          {error ? (
+            <div className={ui.error}>{error}</div>
+          ) : res ? (
+            <>
+              {res.expiry && (
+                <p className="flex flex-wrap items-center gap-2">
+                  <span className={badge(!res.expiry.expired)}>
+                    {res.expiry.expired ? "EXPIRED" : "VALID"}
+                  </span>
+                  <span className="text-sm text-slate-500">
+                    {res.expiry.expired ? "expired " : "expires in "}
+                    {humanLeft(res.expiry.secondsLeft)} ·{" "}
+                    {new Date(res.expiry.expiresAt).toLocaleString()}
+                  </span>
+                </p>
+              )}
+              <div className={`${ui.field} min-h-0 flex-1`}>
+                <label className={ui.label}>Header</label>
+                <CodeBlock
+                  code={JSON.stringify(res.header, null, 2)}
+                  lang="json"
+                  className="min-h-0 flex-1"
+                />
+              </div>
+              <div className={`${ui.field} min-h-0 flex-1`}>
+                <label className={ui.label}>Payload</label>
+                <CodeBlock
+                  code={JSON.stringify(res.payload, null, 2)}
+                  lang="json"
+                  className="min-h-0 flex-1"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
+              Paste a token to decode
+            </div>
           )}
-          <div className={ui.field}>
-            <label className={ui.label}>Header</label>
-            <CodeBlock code={JSON.stringify(res.header, null, 2)} lang="json" />
-          </div>
-          <div className={ui.field}>
-            <label className={ui.label}>Payload</label>
-            <CodeBlock code={JSON.stringify(res.payload, null, 2)} lang="json" />
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </section>
   );
 }
