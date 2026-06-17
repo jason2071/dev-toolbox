@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
 import { ui } from "../../ui";
+import { Panel } from "../../components/Panel";
+import { CopyButton } from "../../components/CopyButton";
 import { useIdbState } from "../../hooks/useIdbState";
 
 interface Group {
@@ -62,114 +64,114 @@ function RegexPage() {
     }
   }
 
+  const fieldInput =
+    "w-full bg-white px-3.5 py-2.5 font-mono text-sm text-slate-800 focus:outline-none";
+
   return (
-    <section className={ui.section}>
+    <section className="w-full max-w-4xl">
       <h1 className={ui.h1}>Regex Tester</h1>
       <p className={ui.lead}>
         Test a regex (Go RE2 syntax) against input and view matches.
       </p>
 
-      <div className={`${ui.field} mt-6`}>
-        <label htmlFor="re-pattern" className={ui.label}>
-          Pattern
-        </label>
-        <input
-          id="re-pattern"
-          type="text"
-          className={ui.input}
-          value={pattern}
-          onChange={(e) => setPattern(e.target.value)}
-        />
-      </div>
-
-      <div className={ui.field}>
-        <label htmlFor="re-input" className={ui.label}>
-          Input
-        </label>
-        <textarea
-          id="re-input"
-          rows={5}
-          className={ui.input}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-      </div>
-
-      <div className={ui.row}>
-        <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
+      <div className="mt-6 flex flex-col gap-4">
+        <Panel title=">_ Pattern" actions={pattern && <CopyButton text={pattern} />}>
           <input
-            type="checkbox"
-            className="h-4 w-4 accent-indigo-500"
-            checked={ignoreCase}
-            onChange={(e) => setIgnoreCase(e.target.checked)}
+            id="re-pattern"
+            type="text"
+            className={fieldInput}
+            value={pattern}
+            onChange={(e) => setPattern(e.target.value)}
           />
-          ignore case (i)
-        </label>
-        <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
-          <input
-            type="checkbox"
-            className="h-4 w-4 accent-indigo-500"
-            checked={multiline}
-            onChange={(e) => setMultiline(e.target.checked)}
+        </Panel>
+
+        <Panel title="Input">
+          <textarea
+            id="re-input"
+            rows={5}
+            className={`${fieldInput} resize-y`}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
-          multiline (m)
-        </label>
-      </div>
+        </Panel>
 
-      <div className={ui.row}>
-        <button className={ui.primary} onClick={run} disabled={busy}>
-          {busy ? "Testing…" : "Test"}
-        </button>
-        <button className={ui.secondary} onClick={save}>
-          Save pattern
-        </button>
-      </div>
-
-      {savedPatterns.length > 0 && (
-        <div className={ui.field}>
-          <label className={ui.label}>Saved patterns</label>
-          <div className="flex flex-wrap gap-2">
-            {savedPatterns.map((p) => (
-              <button
-                key={p}
-                className={ui.chip}
-                onClick={() => setPattern(p)}
-                title="Load pattern"
-              >
-                {p}
-              </button>
-            ))}
+        <div className={ui.row}>
+          <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-indigo-500"
+              checked={ignoreCase}
+              onChange={(e) => setIgnoreCase(e.target.checked)}
+            />
+            ignore case (i)
+          </label>
+          <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-indigo-500"
+              checked={multiline}
+              onChange={(e) => setMultiline(e.target.checked)}
+            />
+            multiline (m)
+          </label>
+          <div className="ml-auto flex gap-2">
+            <button className={ui.secondary} onClick={save}>
+              Save pattern
+            </button>
+            <button className={ui.primary} onClick={run} disabled={busy}>
+              {busy ? "Testing…" : "Test"}
+            </button>
           </div>
         </div>
-      )}
 
-      {error && <div className={ui.error}>{error}</div>}
+        {savedPatterns.length > 0 && (
+          <div className={ui.field}>
+            <label className={ui.label}>Saved patterns</label>
+            <div className="flex flex-wrap gap-2">
+              {savedPatterns.map((p) => (
+                <button
+                  key={p}
+                  className={ui.chip}
+                  onClick={() => setPattern(p)}
+                  title="Load pattern"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-      {res && (
-        <div className={ui.field}>
-          <label className={ui.label}>
-            {res.count} match{res.count === 1 ? "" : "es"}
-          </label>
-          {res.count > 0 && (
-            <pre className={ui.output}>
-              {res.matches
-                .map((m, i) => {
-                  const head = `#${i + 1}  [${m.start}-${m.end}]  ${m.text}`;
-                  const groups = m.groups
-                    .map(
-                      (g) =>
-                        `    group ${g.index}${g.name ? ` (${g.name})` : ""}: ${
-                          g.matched ? g.text : "<no match>"
-                        }`,
-                    )
-                    .join("\n");
-                  return groups ? `${head}\n${groups}` : head;
-                })
-                .join("\n\n")}
-            </pre>
-          )}
-        </div>
-      )}
+        {error && <div className={ui.error}>{error}</div>}
+
+        {res && (
+          <Panel
+            pill={`${res.count} match${res.count === 1 ? "" : "es"}`}
+            title="Matches"
+          >
+            {res.count > 0 ? (
+              <pre className="overflow-auto p-4 font-mono text-[13px] leading-relaxed text-slate-800 whitespace-pre-wrap break-words">
+                {res.matches
+                  .map((m, i) => {
+                    const head = `#${i + 1}  [${m.start}-${m.end}]  ${m.text}`;
+                    const groups = m.groups
+                      .map(
+                        (g) =>
+                          `    group ${g.index}${g.name ? ` (${g.name})` : ""}: ${
+                            g.matched ? g.text : "<no match>"
+                          }`,
+                      )
+                      .join("\n");
+                    return groups ? `${head}\n${groups}` : head;
+                  })
+                  .join("\n\n")}
+              </pre>
+            ) : (
+              <p className="p-4 text-sm text-slate-400">No matches.</p>
+            )}
+          </Panel>
+        )}
+      </div>
     </section>
   );
 }

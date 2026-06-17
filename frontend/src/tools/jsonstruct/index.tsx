@@ -4,14 +4,14 @@ import { cachedPost } from "../../api";
 import { useIdbState } from "../../hooks/useIdbState";
 import { ui } from "../../ui";
 import {
-  CheckIcon,
   ClipboardPasteIcon,
-  CopyIcon,
   IconButton,
   WandIcon,
 } from "../../components/icons";
 import { CodeBlock } from "../../components/CodeBlock";
+import { CopyButton } from "../../components/CopyButton";
 import { JsonEditor } from "../../components/JsonEditor";
+import { Panel } from "../../components/Panel";
 
 const SAMPLE = `{
   "id": 1,
@@ -38,7 +38,6 @@ function JsonStructPage() {
   const lang: Lang = LANGS.find((l) => l.value === langValue) ?? LANGS[0];
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
 
   function prettify() {
     try {
@@ -52,17 +51,6 @@ function JsonStructPage() {
     try {
       const text = await navigator.clipboard.readText();
       if (text) setInput(text);
-    } catch {
-      /* clipboard blocked — ignore */
-    }
-  }
-
-  async function copy() {
-    if (!code) return;
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
     } catch {
       /* clipboard blocked — ignore */
     }
@@ -118,80 +106,67 @@ function JsonStructPage() {
 
       <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
         {/* left: inputs */}
-        <div className="flex min-h-0 flex-col">
-          <div className={ui.field}>
+        <div className="flex min-h-0 flex-col gap-3">
+          <div className="flex items-center gap-2">
             <label htmlFor="js-root" className={ui.label}>
               Root type name
             </label>
             <input
               id="js-root"
               type="text"
-              className={ui.input}
+              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-sm text-slate-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               value={rootName}
               onChange={(e) => setRootName(e.target.value)}
             />
           </div>
 
-          <div className={`${ui.field} min-h-0 flex-1`}>
-            <div className="flex items-center justify-between">
-              <label htmlFor="js-input" className={ui.label}>
-                JSON
-              </label>
-              <div className="flex gap-1.5">
+          <Panel
+            className="flex-1"
+            title=">_ JSON"
+            actions={
+              <>
                 <IconButton label="Prettify" onClick={prettify}>
                   <WandIcon />
                 </IconButton>
                 <IconButton label="Paste" onClick={paste}>
                   <ClipboardPasteIcon />
                 </IconButton>
-              </div>
-            </div>
-            <div className="min-h-0 flex-1">
-              <JsonEditor id="js-input" value={input} onChange={setInput} />
-            </div>
-          </div>
+              </>
+            }
+          >
+            <JsonEditor id="js-input" value={input} onChange={setInput} />
+          </Panel>
         </div>
 
         {/* right: output */}
-        <div className={`${ui.field} min-h-0`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <label htmlFor="js-lang" className={ui.label}>
-                Output
-              </label>
-              <select
-                id="js-lang"
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                value={lang.value}
-                onChange={(e) => setLangValue(e.target.value)}
-              >
-                {LANGS.map((l) => (
-                  <option key={l.value} value={l.value}>
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {code && (
-              <IconButton label={copied ? "Copied!" : "Copy"} onClick={copy}>
-                {copied ? (
-                  <CheckIcon className="text-emerald-600" />
-                ) : (
-                  <CopyIcon />
-                )}
-              </IconButton>
-            )}
-          </div>
+        <Panel
+          className="min-h-0"
+          title={
+            <select
+              id="js-lang"
+              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              value={lang.value}
+              onChange={(e) => setLangValue(e.target.value)}
+            >
+              {LANGS.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
+            </select>
+          }
+          actions={code && <CopyButton text={code} />}
+        >
           {error ? (
-            <div className={ui.error}>{error}</div>
+            <div className={`${ui.error} m-3`}>{error}</div>
           ) : code ? (
-            <CodeBlock code={code} lang={lang.hljs} className="min-h-0 flex-1" />
+            <CodeBlock code={code} lang={lang.hljs} light className="h-full" />
           ) : (
-            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
+            <div className="flex h-full items-center justify-center text-sm text-slate-400">
               Output appears here
             </div>
           )}
-        </div>
+        </Panel>
       </div>
     </section>
   );

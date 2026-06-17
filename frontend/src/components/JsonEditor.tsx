@@ -17,20 +17,20 @@ export function JsonEditor({
   onChange: (next: string) => void;
 }) {
   return (
-    <div className="flex h-full flex-col overflow-auto rounded-xl border border-slate-700 bg-[#1e1e2e] shadow-xl shadow-slate-900/10 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/20">
+    <div className="flex h-full flex-col overflow-auto bg-white">
       <Editor
         value={value}
         onValueChange={onChange}
         highlight={(code) => hljs.highlight(code, { language: "json" }).value}
         padding={16}
         textareaId={id}
-        className="hljs min-h-full flex-1"
+        className="hljs-light min-h-full flex-1"
         style={{
           fontFamily: 'ui-monospace, "SFMono-Regular", "Consolas", monospace',
           fontSize: 13,
           lineHeight: 1.6,
-          color: "#e4e4f0",
-          caretColor: "#e4e4f0",
+          color: "#1a2233",
+          caretColor: "#1a2233",
         }}
       />
     </div>
