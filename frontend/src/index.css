@@ -8,6 +8,12 @@
   color: inherit;
 }
 
+/* react-simple-code-editor: drop the textarea's default focus outline — the
+   surrounding Panel already shows a focus ring. */
+.npm__react-simple-code-editor__textarea:focus {
+  outline: none !important;
+}
+
 /* Light-theme token colors for code shown on white cards (jwt.io-ish). */
 .hljs-light .hljs-attr {
   color: #0550ae;
