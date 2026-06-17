@@ -92,9 +92,12 @@ function JwtPage() {
       <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
         {/* left: token input */}
         <div className={`${ui.field} min-h-0`}>
-          <label htmlFor="jwt-input" className={ui.label}>
-            Token
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="jwt-input" className={ui.label}>
+              Token
+            </label>
+            {token && <CopyButton text={token} />}
+          </div>
           <div className="min-h-0 flex-1">
             <TokenEditor id="jwt-input" value={token} onChange={setToken} />
           </div>
