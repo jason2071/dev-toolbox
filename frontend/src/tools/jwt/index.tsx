@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ToolDef } from "../types";
 import { post } from "../../api";
 import { ui, badge } from "../../ui";
+import { CodeBlock } from "../../components/CodeBlock";
 
 interface Expiry {
   expiresAt: string;
@@ -95,15 +96,11 @@ function JwtPage() {
           )}
           <div className={ui.field}>
             <label className={ui.label}>Header</label>
-            <pre className={ui.output}>
-              {JSON.stringify(res.header, null, 2)}
-            </pre>
+            <CodeBlock code={JSON.stringify(res.header, null, 2)} lang="json" />
           </div>
           <div className={ui.field}>
             <label className={ui.label}>Payload</label>
-            <pre className={ui.output}>
-              {JSON.stringify(res.payload, null, 2)}
-            </pre>
+            <CodeBlock code={JSON.stringify(res.payload, null, 2)} lang="json" />
           </div>
         </>
       )}

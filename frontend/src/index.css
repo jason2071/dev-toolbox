@@ -1,4 +1,12 @@
 @import "tailwindcss";
+@import "highlight.js/styles/atom-one-dark.css";
+
+/* Let the highlighted code sit on our own dark panel background. */
+.hljs {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
 
 /* App-wide background: soft indigo/violet glow on a light base. */
 body {
