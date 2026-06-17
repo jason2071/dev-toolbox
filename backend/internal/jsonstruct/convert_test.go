@@ -1,6 +1,7 @@
 package jsonstruct
 
 import (
+	"go/format"
 	"strings"
 	"testing"
 )
@@ -67,8 +68,14 @@ func TestConvertGo(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Convert error: %v", err)
 			}
-			if got != tt.want {
-				t.Errorf("Convert mismatch:\ngot:\n%s\nwant:\n%s", got, tt.want)
+			// Output is gofmt'd; normalize the expectation the same way so the
+			// test is about content, not hand-counted column alignment.
+			wantBytes, err := format.Source([]byte(tt.want))
+			if err != nil {
+				t.Fatalf("format want: %v", err)
+			}
+			if got != string(wantBytes) {
+				t.Errorf("Convert mismatch:\ngot:\n%s\nwant:\n%s", got, wantBytes)
 			}
 		})
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go/format"
 	"strings"
 	"unicode"
 )
@@ -44,7 +45,15 @@ func Convert(jsonSrc, rootName, lang string) (string, error) {
 	c := newCollector()
 	c.rootName = goName(rootName)
 	root := c.build(n, rootName)
-	return emit(c, root), nil
+	out := emit(c, root)
+
+	// Run gofmt on Go output so struct fields and tags column-align.
+	if lang == "go" {
+		if formatted, ferr := format.Source([]byte(out)); ferr == nil {
+			out = string(formatted)
+		}
+	}
+	return out, nil
 }
 
 // SupportedLanguages lists the target languages in display order.
