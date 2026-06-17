@@ -3,6 +3,8 @@ import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
 import { ui, badge } from "../../ui";
 import { CodeBlock } from "../../components/CodeBlock";
+import { CopyButton } from "../../components/CopyButton";
+import { TokenEditor } from "../../components/TokenEditor";
 import { useIdbState } from "../../hooks/useIdbState";
 
 interface Expiry {
@@ -93,13 +95,9 @@ function JwtPage() {
           <label htmlFor="jwt-input" className={ui.label}>
             Token
           </label>
-          <textarea
-            id="jwt-input"
-            className={`${ui.input} min-h-0 flex-1`}
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="eyJhbGciOi…"
-          />
+          <div className="min-h-0 flex-1">
+            <TokenEditor id="jwt-input" value={token} onChange={setToken} />
+          </div>
         </div>
 
         {/* right: decoded output */}
@@ -121,7 +119,10 @@ function JwtPage() {
                 </p>
               )}
               <div className={`${ui.field} min-h-0 flex-1`}>
-                <label className={ui.label}>Header</label>
+                <div className="flex items-center justify-between">
+                  <label className={ui.label}>Header</label>
+                  <CopyButton text={JSON.stringify(res.header, null, 2)} />
+                </div>
                 <CodeBlock
                   code={JSON.stringify(res.header, null, 2)}
                   lang="json"
@@ -129,7 +130,10 @@ function JwtPage() {
                 />
               </div>
               <div className={`${ui.field} min-h-0 flex-1`}>
-                <label className={ui.label}>Payload</label>
+                <div className="flex items-center justify-between">
+                  <label className={ui.label}>Payload</label>
+                  <CopyButton text={JSON.stringify(res.payload, null, 2)} />
+                </div>
                 <CodeBlock
                   code={JSON.stringify(res.payload, null, 2)}
                   lang="json"
