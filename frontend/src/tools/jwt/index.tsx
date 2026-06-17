@@ -92,7 +92,7 @@ function JwtPage() {
 
       <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
         {/* left: token input card */}
-        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500/30">
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
             <span className="font-mono text-sm font-medium text-slate-600">
               &gt;_ JSON Web Token (JWT)

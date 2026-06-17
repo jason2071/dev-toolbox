@@ -22,9 +22,9 @@ export function Panel({
   focusable?: boolean;
   children: ReactNode;
 }) {
-  const focus = focusable
-    ? "transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500/30"
-    : "";
+  // focusable kept as a no-op flag: no focus ring on the card per design.
+  void focusable;
+  const focus = "";
   return (
     <div
       className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm ${focus} ${className}`}
