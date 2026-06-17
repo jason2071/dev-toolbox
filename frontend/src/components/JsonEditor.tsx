@@ -11,27 +11,24 @@ export function JsonEditor({
   id,
   value,
   onChange,
-  minHeight = 420,
 }: {
   id?: string;
   value: string;
   onChange: (next: string) => void;
-  minHeight?: number;
 }) {
   return (
-    <div className="overflow-auto rounded-xl border border-slate-700 bg-[#1e1e2e] shadow-xl shadow-slate-900/10 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/20">
+    <div className="flex h-full flex-col overflow-auto rounded-xl border border-slate-700 bg-[#1e1e2e] shadow-xl shadow-slate-900/10 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/20">
       <Editor
         value={value}
         onValueChange={onChange}
         highlight={(code) => hljs.highlight(code, { language: "json" }).value}
         padding={16}
         textareaId={id}
-        className="hljs"
+        className="hljs min-h-full flex-1"
         style={{
           fontFamily: 'ui-monospace, "SFMono-Regular", "Consolas", monospace',
           fontSize: 13,
           lineHeight: 1.6,
-          minHeight,
           color: "#e4e4f0",
           caretColor: "#e4e4f0",
         }}

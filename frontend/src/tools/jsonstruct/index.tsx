@@ -107,16 +107,16 @@ function JsonStructPage() {
   }, [input, rootName, lang]);
 
   return (
-    <section className="w-full">
+    <section className="flex w-full flex-1 flex-col">
       <h1 className={ui.h1}>JSON → Struct</h1>
       <p className={ui.lead}>
         Convert JSON into type definitions — converts automatically once the
         JSON is valid.
       </p>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
         {/* left: inputs */}
-        <div className="flex flex-col">
+        <div className="flex min-h-0 flex-col">
           <div className={ui.field}>
             <label htmlFor="js-root" className={ui.label}>
               Root type name
@@ -130,7 +130,7 @@ function JsonStructPage() {
             />
           </div>
 
-          <div className={`${ui.field} flex-1`}>
+          <div className={`${ui.field} min-h-0 flex-1`}>
             <div className="flex items-center justify-between">
               <label htmlFor="js-input" className={ui.label}>
                 JSON
@@ -144,12 +144,14 @@ function JsonStructPage() {
                 </IconButton>
               </div>
             </div>
-            <JsonEditor id="js-input" value={input} onChange={setInput} />
+            <div className="min-h-0 flex-1">
+              <JsonEditor id="js-input" value={input} onChange={setInput} />
+            </div>
           </div>
         </div>
 
         {/* right: output */}
-        <div className={ui.field}>
+        <div className={`${ui.field} min-h-0`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label htmlFor="js-lang" className={ui.label}>
@@ -185,13 +187,9 @@ function JsonStructPage() {
           {error ? (
             <div className={ui.error}>{error}</div>
           ) : code ? (
-            <CodeBlock
-              code={code}
-              lang={lang.hljs}
-              className="min-h-[420px]"
-            />
+            <CodeBlock code={code} lang={lang.hljs} className="min-h-0 flex-1" />
           ) : (
-            <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
+            <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
               Output appears here
             </div>
           )}

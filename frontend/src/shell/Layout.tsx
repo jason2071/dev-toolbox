@@ -7,7 +7,7 @@ export function Layout() {
   return (
     <div className="grid min-h-screen grid-cols-[248px_1fr]">
       <Sidebar />
-      <main className="px-11 py-9">
+      <main className="flex flex-col px-11 py-9">
         <Outlet />
       </main>
     </div>
