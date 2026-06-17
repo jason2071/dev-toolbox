@@ -109,7 +109,7 @@ function RegexPage() {
         <button className="primary" onClick={run} disabled={busy}>
           {busy ? "Testing…" : "Test"}
         </button>
-        <button className="primary" onClick={save}>
+        <button className="secondary" onClick={save}>
           Save pattern
         </button>
       </div>
@@ -121,12 +121,11 @@ function RegexPage() {
             {savedPatterns.map((p) => (
               <button
                 key={p}
-                className="primary"
-                style={{ background: "var(--panel)", color: "var(--text)" }}
+                className="chip"
                 onClick={() => setPattern(p)}
                 title="Load pattern"
               >
-                <code>{p}</code>
+                {p}
               </button>
             ))}
           </div>
