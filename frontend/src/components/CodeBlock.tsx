@@ -15,24 +15,33 @@ hljs.registerLanguage("rust", rust);
 
 type Lang = "go" | "json" | "typescript" | "python" | "rust";
 
-// CodeBlock renders syntax-highlighted code in the shared dark output panel.
+// CodeBlock renders syntax-highlighted code. Default is the dark output panel;
+// pass `light` for a white card (used by panels with their own chrome).
 // Highlighting runs client-side via highlight.js (offline, no network).
 export function CodeBlock({
   code,
   lang,
   className = "",
+  light = false,
 }: {
   code: string;
   lang: Lang;
   className?: string;
+  light?: boolean;
 }) {
   const html = useMemo(
     () => hljs.highlight(code, { language: lang }).value,
     [code, lang],
   );
+  const pre = light
+    ? "overflow-auto bg-white p-4 font-mono text-[13px] leading-relaxed text-slate-800 whitespace-pre-wrap break-words"
+    : ui.output;
   return (
-    <pre className={`${ui.output} ${className}`}>
-      <code className="hljs" dangerouslySetInnerHTML={{ __html: html }} />
+    <pre className={`${pre} ${className}`}>
+      <code
+        className={light ? "hljs hljs-light" : "hljs"}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </pre>
   );
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
-import { ui, badge } from "../../ui";
+import { ui } from "../../ui";
 import { CodeBlock } from "../../components/CodeBlock";
 import { CopyButton } from "../../components/CopyButton";
 import { TokenEditor } from "../../components/TokenEditor";
+import { ClearIcon, IconButton } from "../../components/icons";
 import { useIdbState } from "../../hooks/useIdbState";
 
 interface Expiry {
@@ -90,59 +91,58 @@ function JwtPage() {
       </p>
 
       <div className="mt-6 grid min-h-0 flex-1 gap-6 lg:grid-cols-2">
-        {/* left: token input */}
-        <div className={`${ui.field} min-h-0`}>
-          <div className="flex items-center justify-between">
-            <label htmlFor="jwt-input" className={ui.label}>
-              Token
-            </label>
-            {token && <CopyButton text={token} />}
+        {/* left: token input card */}
+        <div className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+            <span className="font-mono text-sm font-medium text-slate-600">
+              &gt;_ JSON Web Token (JWT)
+            </span>
+            {token && (
+              <div className="flex gap-1.5">
+                <CopyButton text={token} />
+                <IconButton label="Clear" onClick={() => setToken("")}>
+                  <ClearIcon />
+                </IconButton>
+              </div>
+            )}
           </div>
           <div className="min-h-0 flex-1">
             <TokenEditor id="jwt-input" value={token} onChange={setToken} />
           </div>
+          {error ? (
+            <div className="border-t border-slate-100 px-3 py-2.5 text-sm font-medium text-red-600">
+              ✗ {error}
+            </div>
+          ) : res?.expiry ? (
+            <div className="border-t border-slate-100 px-3 py-2.5 text-sm">
+              <span
+                className={
+                  res.expiry.expired
+                    ? "font-medium text-red-600"
+                    : "font-medium text-emerald-600"
+                }
+              >
+                {res.expiry.expired ? "✗ Expired JWT" : "✓ Valid JWT"}
+              </span>
+              <span className="ml-2 text-slate-500">
+                {res.expiry.expired ? "expired " : "expires in "}
+                {humanLeft(res.expiry.secondsLeft)} ·{" "}
+                {new Date(res.expiry.expiresAt).toLocaleString()}
+              </span>
+            </div>
+          ) : res ? (
+            <div className="border-t border-slate-100 px-3 py-2.5 text-sm font-medium text-emerald-600">
+              ✓ Valid JWT
+            </div>
+          ) : null}
         </div>
 
         {/* right: decoded output */}
-        <div className="flex min-h-0 flex-col gap-4">
-          {error ? (
-            <div className={ui.error}>{error}</div>
-          ) : res ? (
+        <div className="flex min-h-0 flex-col gap-4 overflow-auto">
+          {res ? (
             <>
-              {res.expiry && (
-                <p className="flex flex-wrap items-center gap-2">
-                  <span className={badge(!res.expiry.expired)}>
-                    {res.expiry.expired ? "EXPIRED" : "VALID"}
-                  </span>
-                  <span className="text-sm text-slate-500">
-                    {res.expiry.expired ? "expired " : "expires in "}
-                    {humanLeft(res.expiry.secondsLeft)} ·{" "}
-                    {new Date(res.expiry.expiresAt).toLocaleString()}
-                  </span>
-                </p>
-              )}
-              <div className={`${ui.field} min-h-0 flex-1`}>
-                <div className="flex items-center justify-between">
-                  <label className={ui.label}>Header</label>
-                  <CopyButton text={JSON.stringify(res.header, null, 2)} />
-                </div>
-                <CodeBlock
-                  code={JSON.stringify(res.header, null, 2)}
-                  lang="json"
-                  className="min-h-0 flex-1"
-                />
-              </div>
-              <div className={`${ui.field} min-h-0 flex-1`}>
-                <div className="flex items-center justify-between">
-                  <label className={ui.label}>Payload</label>
-                  <CopyButton text={JSON.stringify(res.payload, null, 2)} />
-                </div>
-                <CodeBlock
-                  code={JSON.stringify(res.payload, null, 2)}
-                  lang="json"
-                  className="min-h-0 flex-1"
-                />
-              </div>
+              <ClaimsCard title="Decoded Header" data={res.header} />
+              <ClaimsCard title="Decoded Payload" data={res.payload} />
             </>
           ) : (
             <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
@@ -152,6 +152,32 @@ function JwtPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+// ClaimsCard is a white panel with a "JSON" pill header, a copy button, and the
+// highlighted claims.
+function ClaimsCard({
+  title,
+  data,
+}: {
+  title: string;
+  data: Record<string, unknown>;
+}) {
+  const json = JSON.stringify(data, null, 2);
+  return (
+    <div>
+      <div className="mb-2 text-sm font-semibold text-slate-600">{title}</div>
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+            JSON
+          </span>
+          <CopyButton text={json} />
+        </div>
+        <CodeBlock code={json} lang="json" light />
+      </div>
+    </div>
   );
 }
 

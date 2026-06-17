@@ -8,6 +8,23 @@
   color: inherit;
 }
 
+/* Light-theme token colors for code shown on white cards (jwt.io-ish). */
+.hljs-light .hljs-attr {
+  color: #0550ae;
+}
+.hljs-light .hljs-string {
+  color: #0a7d3c;
+}
+.hljs-light .hljs-number {
+  color: #1971c2;
+}
+.hljs-light .hljs-literal {
+  color: #cf5c00;
+}
+.hljs-light .hljs-punctuation {
+  color: #57606a;
+}
+
 /* App-wide background: soft indigo/violet glow on a light base. */
 body {
   margin: 0;
