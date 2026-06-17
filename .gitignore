@@ -1,0 +1,52 @@
+# ── Dependencies ──────────────────────────────
+node_modules/
+
+# ── Go ────────────────────────────────────────
+# compiled binaries / build output
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# test binary, coverage
+*.test
+*.out
+coverage.*
+# go workspace
+go.work
+go.work.sum
+# vendored deps (using modules)
+vendor/
+
+# ── Frontend (Vite / React) ───────────────────
+frontend/dist/
+dist/
+.vite/
+*.tsbuildinfo
+
+# ── Env / secrets ─────────────────────────────
+.env
+.env.*
+!.env.example
+*.local
+
+# ── Logs ──────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Editor / IDE ──────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

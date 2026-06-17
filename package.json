@@ -1,0 +1,14 @@
+{
+  "name": "dev-toolbox",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "cd backend && go run ./cmd/server",
+    "dev:frontend": "cd frontend && npm run dev",
+    "setup": "cd frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
