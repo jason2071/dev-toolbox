@@ -22,8 +22,10 @@ func (module) Routes(g *gin.RouterGroup) {
 }
 
 type testRequest struct {
-	Pattern string `json:"pattern"`
-	Input   string `json:"input"`
+	Pattern    string `json:"pattern"`
+	Input      string `json:"input"`
+	IgnoreCase bool   `json:"ignoreCase"`
+	Multiline  bool   `json:"multiline"`
 }
 
 func test(c *gin.Context) {
@@ -32,6 +34,10 @@ func test(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	// TODO(phase1): compile pattern, return matches + groups.
-	c.JSON(501, gin.H{"error": "not implemented"})
+	res, err := Test(req.Pattern, req.Input, req.IgnoreCase, req.Multiline)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, res)
 }

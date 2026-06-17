@@ -1,10 +1,10 @@
 :root {
-  --bg: #0f1115;
-  --panel: #161a21;
-  --border: #262c36;
-  --text: #e6e9ef;
-  --muted: #8b93a1;
-  --accent: #4c8bf5;
+  --bg: #f7f8fa;
+  --panel: #ffffff;
+  --border: #e3e6ea;
+  --text: #1c2430;
+  --muted: #6b7280;
+  --accent: #2563eb;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -56,13 +56,13 @@ body {
 }
 
 .sidebar a:hover {
-  background: #1d232c;
+  background: #eef1f5;
   color: var(--text);
 }
 
 .sidebar a.active {
-  background: #1f2937;
-  color: var(--text);
+  background: #e8eefc;
+  color: var(--accent);
   box-shadow: inset 2px 0 0 var(--accent);
 }
 
@@ -86,4 +86,113 @@ body {
   border-radius: 8px;
   color: var(--muted);
   font-size: 13px;
+}
+
+/* ── tool forms ─────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+textarea,
+input[type="text"] {
+  width: 100%;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: ui-monospace, "SFMono-Regular", "Consolas", monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.primary:hover {
+  filter: brightness(1.05);
+}
+
+button.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+pre.output {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  overflow: auto;
+  font-family: ui-monospace, "SFMono-Regular", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #f3c0c0;
+  background: #fdeaea;
+  color: #b42318;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.ok {
+  background: #e3f6e8;
+  color: #1a7f37;
+}
+
+.badge.bad {
+  background: #fdeaea;
+  color: #b42318;
 }

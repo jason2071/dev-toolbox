@@ -8,8 +8,8 @@ import (
 
 type fakeTool struct{ id string }
 
-func (f fakeTool) ID() string             { return f.id }
-func (f fakeTool) Name() string           { return f.id }
+func (f fakeTool) ID() string              { return f.id }
+func (f fakeTool) Name() string            { return f.id }
 func (f fakeTool) Description() string     { return f.id }
 func (f fakeTool) Routes(*gin.RouterGroup) {}
 

@@ -22,7 +22,8 @@ func (module) Routes(g *gin.RouterGroup) {
 }
 
 type convertRequest struct {
-	JSON string `json:"json"`
+	JSON     string `json:"json"`
+	RootName string `json:"rootName"`
 }
 
 func convert(c *gin.Context) {
@@ -31,6 +32,10 @@ func convert(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	// TODO(phase1): real JSON→struct conversion (nested, slice, type mapping).
-	c.JSON(501, gin.H{"error": "not implemented"})
+	code, err := Convert(req.JSON, req.RootName)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"code": code})
 }

@@ -3,6 +3,8 @@
 package jwt
 
 import (
+	"time"
+
 	"devtoolbox/internal/tool"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +33,10 @@ func decode(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	// TODO(phase1): decode header/payload, surface exp vs current time.
-	c.JSON(501, gin.H{"error": "not implemented"})
+	res, err := Decode(req.Token, time.Now())
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, res)
 }
