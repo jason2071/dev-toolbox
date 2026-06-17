@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ToolDef } from "../types";
 import { post } from "../../api";
+import { ui } from "../../ui";
 
 interface Group {
   index: number;
@@ -60,44 +61,52 @@ function RegexPage() {
   }
 
   return (
-    <section>
-      <h1>Regex Tester</h1>
-      <p className="muted">
+    <section className={ui.section}>
+      <h1 className={ui.h1}>Regex Tester</h1>
+      <p className={ui.lead}>
         Test a regex (Go RE2 syntax) against input and view matches.
       </p>
 
-      <div className="field">
-        <label htmlFor="re-pattern">Pattern</label>
+      <div className={`${ui.field} mt-6`}>
+        <label htmlFor="re-pattern" className={ui.label}>
+          Pattern
+        </label>
         <input
           id="re-pattern"
           type="text"
+          className={ui.input}
           value={pattern}
           onChange={(e) => setPattern(e.target.value)}
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="re-input">Input</label>
+      <div className={ui.field}>
+        <label htmlFor="re-input" className={ui.label}>
+          Input
+        </label>
         <textarea
           id="re-input"
           rows={5}
+          className={ui.input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
       </div>
 
-      <div className="row">
-        <label>
+      <div className={ui.row}>
+        <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
           <input
             type="checkbox"
+            className="h-4 w-4 accent-indigo-500"
             checked={ignoreCase}
             onChange={(e) => setIgnoreCase(e.target.checked)}
           />
           ignore case (i)
         </label>
-        <label>
+        <label className="inline-flex items-center gap-1.5 text-sm text-slate-500">
           <input
             type="checkbox"
+            className="h-4 w-4 accent-indigo-500"
             checked={multiline}
             onChange={(e) => setMultiline(e.target.checked)}
           />
@@ -105,23 +114,23 @@ function RegexPage() {
         </label>
       </div>
 
-      <div className="row">
-        <button className="primary" onClick={run} disabled={busy}>
+      <div className={ui.row}>
+        <button className={ui.primary} onClick={run} disabled={busy}>
           {busy ? "Testing…" : "Test"}
         </button>
-        <button className="secondary" onClick={save}>
+        <button className={ui.secondary} onClick={save}>
           Save pattern
         </button>
       </div>
 
       {savedPatterns.length > 0 && (
-        <div className="field">
-          <label>Saved patterns</label>
-          <div className="row">
+        <div className={ui.field}>
+          <label className={ui.label}>Saved patterns</label>
+          <div className="flex flex-wrap gap-2">
             {savedPatterns.map((p) => (
               <button
                 key={p}
-                className="chip"
+                className={ui.chip}
                 onClick={() => setPattern(p)}
                 title="Load pattern"
               >
@@ -132,15 +141,15 @@ function RegexPage() {
         </div>
       )}
 
-      {error && <div className="error">{error}</div>}
+      {error && <div className={ui.error}>{error}</div>}
 
       {res && (
-        <div className="field">
-          <label>
+        <div className={ui.field}>
+          <label className={ui.label}>
             {res.count} match{res.count === 1 ? "" : "es"}
           </label>
           {res.count > 0 && (
-            <pre className="output">
+            <pre className={ui.output}>
               {res.matches
                 .map((m, i) => {
                   const head = `#${i + 1}  [${m.start}-${m.end}]  ${m.text}`;

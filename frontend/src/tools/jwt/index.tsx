@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ToolDef } from "../types";
 import { post } from "../../api";
+import { ui, badge } from "../../ui";
 
 interface Expiry {
   expiresAt: string;
@@ -46,53 +47,63 @@ function JwtPage() {
   }
 
   return (
-    <section>
-      <h1>JWT Decoder</h1>
-      <p className="muted">
-        Decode a JWT and compare <code>exp</code> against now. Signature is not
-        verified.
+    <section className={ui.section}>
+      <h1 className={ui.h1}>JWT Decoder</h1>
+      <p className={ui.lead}>
+        Decode a JWT and compare{" "}
+        <code className="rounded bg-slate-200 px-1 font-mono text-[12px] text-slate-700">
+          exp
+        </code>{" "}
+        against now. Signature is not verified.
       </p>
 
-      <div className="field">
-        <label htmlFor="jwt-input">Token</label>
+      <div className={`${ui.field} mt-6`}>
+        <label htmlFor="jwt-input" className={ui.label}>
+          Token
+        </label>
         <textarea
           id="jwt-input"
           rows={5}
+          className={ui.input}
           value={token}
           onChange={(e) => setToken(e.target.value)}
           placeholder="eyJhbGciOi…"
         />
       </div>
 
-      <div className="row">
-        <button className="primary" onClick={decode} disabled={busy}>
+      <div className={ui.row}>
+        <button className={ui.primary} onClick={decode} disabled={busy}>
           {busy ? "Decoding…" : "Decode"}
         </button>
       </div>
 
-      {error && <div className="error">{error}</div>}
+      {error && <div className={ui.error}>{error}</div>}
 
       {res && (
         <>
           {res.expiry && (
-            <p>
-              <span className={`badge ${res.expiry.expired ? "bad" : "ok"}`}>
+            <p className="mb-4 flex items-center gap-2">
+              <span className={badge(!res.expiry.expired)}>
                 {res.expiry.expired ? "EXPIRED" : "VALID"}
-              </span>{" "}
-              <span className="muted">
+              </span>
+              <span className="text-sm text-slate-500">
                 {res.expiry.expired ? "expired " : "expires in "}
                 {humanLeft(res.expiry.secondsLeft)} ·{" "}
                 {new Date(res.expiry.expiresAt).toLocaleString()}
               </span>
             </p>
           )}
-          <div className="field">
-            <label>Header</label>
-            <pre className="output">{JSON.stringify(res.header, null, 2)}</pre>
+          <div className={ui.field}>
+            <label className={ui.label}>Header</label>
+            <pre className={ui.output}>
+              {JSON.stringify(res.header, null, 2)}
+            </pre>
           </div>
-          <div className="field">
-            <label>Payload</label>
-            <pre className="output">{JSON.stringify(res.payload, null, 2)}</pre>
+          <div className={ui.field}>
+            <label className={ui.label}>Payload</label>
+            <pre className={ui.output}>
+              {JSON.stringify(res.payload, null, 2)}
+            </pre>
           </div>
         </>
       )}

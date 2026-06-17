@@ -23,9 +23,9 @@ export function App() {
 }
 
 function Empty() {
-  return <p className="muted">No tools registered.</p>;
+  return <p className="text-slate-500">No tools registered.</p>;
 }
 
 function NotFound() {
-  return <p className="muted">Tool not found.</p>;
+  return <p className="text-slate-500">Tool not found.</p>;
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ToolDef } from "../types";
 import { post } from "../../api";
+import { ui } from "../../ui";
 
 const SAMPLE = `{
   "id": 1,
@@ -35,38 +36,44 @@ function JsonStructPage() {
   }
 
   return (
-    <section>
-      <h1>JSON → Go Struct</h1>
-      <p className="muted">Convert JSON into Go struct definitions.</p>
+    <section className={ui.section}>
+      <h1 className={ui.h1}>JSON → Go Struct</h1>
+      <p className={ui.lead}>Convert JSON into Go struct definitions.</p>
 
-      <div className="field">
-        <label htmlFor="js-root">Root type name</label>
+      <div className={`${ui.field} mt-6`}>
+        <label htmlFor="js-root" className={ui.label}>
+          Root type name
+        </label>
         <input
           id="js-root"
           type="text"
+          className={ui.input}
           value={rootName}
           onChange={(e) => setRootName(e.target.value)}
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="js-input">JSON</label>
+      <div className={ui.field}>
+        <label htmlFor="js-input" className={ui.label}>
+          JSON
+        </label>
         <textarea
           id="js-input"
           rows={12}
+          className={ui.input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
       </div>
 
-      <div className="row">
-        <button className="primary" onClick={convert} disabled={busy}>
+      <div className={ui.row}>
+        <button className={ui.primary} onClick={convert} disabled={busy}>
           {busy ? "Converting…" : "Convert"}
         </button>
       </div>
 
-      {error && <div className="error">{error}</div>}
-      {code && <pre className="output">{code}</pre>}
+      {error && <div className={ui.error}>{error}</div>}
+      {code && <pre className={ui.output}>{code}</pre>}
     </section>
   );
 }

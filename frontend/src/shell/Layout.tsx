@@ -5,9 +5,9 @@ import { Sidebar } from "./Sidebar";
 // the right via <Outlet/>.
 export function Layout() {
   return (
-    <div className="app">
+    <div className="grid min-h-screen grid-cols-[248px_1fr]">
       <Sidebar />
-      <main className="content">
+      <main className="px-11 py-9">
         <Outlet />
       </main>
     </div>
