@@ -10,6 +10,7 @@ export function Panel({
   footer,
   className = "",
   bodyClassName = "",
+  focusable = false,
   children,
 }: {
   title?: ReactNode;
@@ -18,11 +19,15 @@ export function Panel({
   footer?: ReactNode;
   className?: string;
   bodyClassName?: string;
+  focusable?: boolean;
   children: ReactNode;
 }) {
+  const focus = focusable
+    ? "transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500/30"
+    : "";
   return (
     <div
-      className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm ${className}`}
+      className={`flex min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm ${focus} ${className}`}
     >
       {(title || pill || actions) && (
         <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">

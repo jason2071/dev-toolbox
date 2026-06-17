@@ -114,7 +114,7 @@ function JsonStructPage() {
             <input
               id="js-root"
               type="text"
-              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-sm text-slate-800 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-sm text-slate-800 shadow-sm transition focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/15"
               value={rootName}
               onChange={(e) => setRootName(e.target.value)}
             />
@@ -122,6 +122,7 @@ function JsonStructPage() {
 
           <Panel
             className="flex-1"
+            focusable
             title=">_ JSON"
             actions={
               <>

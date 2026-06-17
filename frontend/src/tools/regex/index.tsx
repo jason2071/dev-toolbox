@@ -75,7 +75,11 @@ function RegexPage() {
       </p>
 
       <div className="mt-6 flex flex-col gap-4">
-        <Panel title=">_ Pattern" actions={pattern && <CopyButton text={pattern} />}>
+        <Panel
+          focusable
+          title=">_ Pattern"
+          actions={pattern && <CopyButton text={pattern} />}
+        >
           <input
             id="re-pattern"
             type="text"
@@ -85,7 +89,7 @@ function RegexPage() {
           />
         </Panel>
 
-        <Panel title="Input">
+        <Panel focusable title="Input">
           <textarea
             id="re-input"
             rows={5}
