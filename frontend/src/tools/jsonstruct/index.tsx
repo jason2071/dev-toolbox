@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
+import { useIdbState } from "../../hooks/useIdbState";
 import { ui } from "../../ui";
 import {
   CheckIcon,
@@ -31,9 +32,10 @@ const LANGS = [
 type Lang = (typeof LANGS)[number];
 
 function JsonStructPage() {
-  const [input, setInput] = useState(SAMPLE);
-  const [rootName, setRootName] = useState("Root");
-  const [lang, setLang] = useState<Lang>(LANGS[0]);
+  const [input, setInput] = useIdbState("jsonstruct.input", SAMPLE);
+  const [rootName, setRootName] = useIdbState("jsonstruct.rootName", "Root");
+  const [langValue, setLangValue] = useIdbState("jsonstruct.lang", "go");
+  const lang: Lang = LANGS.find((l) => l.value === langValue) ?? LANGS[0];
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -161,11 +163,7 @@ function JsonStructPage() {
                 id="js-lang"
                 className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 value={lang.value}
-                onChange={(e) =>
-                  setLang(
-                    LANGS.find((l) => l.value === e.target.value) ?? LANGS[0],
-                  )
-                }
+                onChange={(e) => setLangValue(e.target.value)}
               >
                 {LANGS.map((l) => (
                   <option key={l.value} value={l.value}>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
 import { ui } from "../../ui";
+import { useIdbState } from "../../hooks/useIdbState";
 
 interface Group {
   index: number;
@@ -20,19 +21,21 @@ interface TestResult {
   count: number;
 }
 
-// In-memory store for saved patterns — survives sidebar navigation within the
-// session (no persistence, per Phase 1 scope).
-const savedPatterns: string[] = [];
-
 function RegexPage() {
-  const [pattern, setPattern] = useState(String.raw`(?P<word>\w+)`);
-  const [input, setInput] = useState("hello world 42");
-  const [ignoreCase, setIgnoreCase] = useState(false);
-  const [multiline, setMultiline] = useState(false);
+  const [pattern, setPattern] = useIdbState(
+    "regex.pattern",
+    String.raw`(?P<word>\w+)`,
+  );
+  const [input, setInput] = useIdbState("regex.input", "hello world 42");
+  const [ignoreCase, setIgnoreCase] = useIdbState("regex.ignoreCase", false);
+  const [multiline, setMultiline] = useIdbState("regex.multiline", false);
+  const [savedPatterns, setSavedPatterns] = useIdbState<string[]>(
+    "regex.saved",
+    [],
+  );
   const [res, setRes] = useState<TestResult | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [, force] = useState(0); // re-render after mutating savedPatterns
 
   async function run() {
     setBusy(true);
@@ -55,8 +58,7 @@ function RegexPage() {
 
   function save() {
     if (pattern && !savedPatterns.includes(pattern)) {
-      savedPatterns.push(pattern);
-      force((n) => n + 1);
+      setSavedPatterns([...savedPatterns, pattern]);
     }
   }
 

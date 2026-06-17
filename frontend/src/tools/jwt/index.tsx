@@ -3,6 +3,7 @@ import type { ToolDef } from "../types";
 import { cachedPost } from "../../api";
 import { ui, badge } from "../../ui";
 import { CodeBlock } from "../../components/CodeBlock";
+import { useIdbState } from "../../hooks/useIdbState";
 
 interface Expiry {
   expiresAt: string;
@@ -28,7 +29,7 @@ function humanLeft(s: number): string {
 }
 
 function JwtPage() {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useIdbState("jwt.token", "");
   const [res, setRes] = useState<DecodeResult | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
