@@ -10,6 +10,7 @@ import {
   WandIcon,
 } from "../../components/icons";
 import { CodeBlock } from "../../components/CodeBlock";
+import { JsonEditor } from "../../components/JsonEditor";
 
 const SAMPLE = `{
   "id": 1,
@@ -19,9 +20,20 @@ const SAMPLE = `{
   "profile": { "city": "London", "age": 36 }
 }`;
 
+// Target languages — value matches the backend, label/hljs drive the UI.
+const LANGS = [
+  { value: "go", label: "Go", hljs: "go" },
+  { value: "typescript", label: "TypeScript", hljs: "typescript" },
+  { value: "python", label: "Python", hljs: "python" },
+  { value: "rust", label: "Rust", hljs: "rust" },
+] as const;
+
+type Lang = (typeof LANGS)[number];
+
 function JsonStructPage() {
   const [input, setInput] = useState(SAMPLE);
   const [rootName, setRootName] = useState("Root");
+  const [lang, setLang] = useState<Lang>(LANGS[0]);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -74,7 +86,7 @@ function JsonStructPage() {
       try {
         const res = await post<{ code: string }>(
           "/api/tools/jsonstruct/convert",
-          { json: input, rootName },
+          { json: input, rootName, lang: lang.value },
         );
         if (!cancelled) {
           setCode(res.code);
@@ -92,14 +104,14 @@ function JsonStructPage() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [input, rootName]);
+  }, [input, rootName, lang]);
 
   return (
     <section className="w-full">
-      <h1 className={ui.h1}>JSON → Go Struct</h1>
+      <h1 className={ui.h1}>JSON → Struct</h1>
       <p className={ui.lead}>
-        Convert JSON into Go struct definitions — converts automatically once
-        the JSON is valid.
+        Convert JSON into type definitions — converts automatically once the
+        JSON is valid.
       </p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -132,19 +144,34 @@ function JsonStructPage() {
                 </IconButton>
               </div>
             </div>
-            <textarea
-              id="js-input"
-              className={`${ui.input} min-h-[420px] flex-1`}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
+            <JsonEditor id="js-input" value={input} onChange={setInput} />
           </div>
         </div>
 
         {/* right: output */}
         <div className={ui.field}>
           <div className="flex items-center justify-between">
-            <label className={ui.label}>Go struct</label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="js-lang" className={ui.label}>
+                Output
+              </label>
+              <select
+                id="js-lang"
+                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                value={lang.value}
+                onChange={(e) =>
+                  setLang(
+                    LANGS.find((l) => l.value === e.target.value) ?? LANGS[0],
+                  )
+                }
+              >
+                {LANGS.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             {code && (
               <IconButton label={copied ? "Copied!" : "Copy"} onClick={copy}>
                 {copied ? (
@@ -158,7 +185,11 @@ function JsonStructPage() {
           {error ? (
             <div className={ui.error}>{error}</div>
           ) : code ? (
-            <CodeBlock code={code} lang="go" className="min-h-[420px]" />
+            <CodeBlock
+              code={code}
+              lang={lang.hljs}
+              className="min-h-[420px]"
+            />
           ) : (
             <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-400">
               Output appears here
@@ -172,7 +203,7 @@ function JsonStructPage() {
 
 export const tool: ToolDef = {
   id: "jsonstruct",
-  name: "JSON → Go Struct",
-  description: "Convert JSON into Go struct definitions",
+  name: "JSON → Struct",
+  description: "Convert JSON into Go, TypeScript, Python, or Rust types",
   Page: JsonStructPage,
 };

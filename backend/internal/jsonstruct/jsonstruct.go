@@ -18,12 +18,18 @@ func (module) Name() string        { return "JSON → Go Struct" }
 func (module) Description() string { return "Convert JSON into Go struct definitions" }
 
 func (module) Routes(g *gin.RouterGroup) {
+	g.GET("/languages", languages)
 	g.POST("/convert", convert)
+}
+
+func languages(c *gin.Context) {
+	c.JSON(200, gin.H{"languages": SupportedLanguages()})
 }
 
 type convertRequest struct {
 	JSON     string `json:"json"`
 	RootName string `json:"rootName"`
+	Lang     string `json:"lang"`
 }
 
 func convert(c *gin.Context) {
@@ -32,7 +38,7 @@ func convert(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	code, err := Convert(req.JSON, req.RootName)
+	code, err := Convert(req.JSON, req.RootName, req.Lang)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

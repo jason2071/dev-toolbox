@@ -8,17 +8,26 @@ import (
 	"unicode"
 )
 
-// Convert turns a JSON document into Go struct definitions. rootName is the
-// type name for the top-level value (defaults to "Root" when empty).
+// Convert turns a JSON document into type definitions for the given target
+// language. rootName is the name of the top-level type (defaults to "Root").
+// lang is one of the keys in emitters ("go", "typescript", "python", "rust");
+// an empty lang defaults to "go".
 //
-// Supports nested objects (inline structs), arrays (with element-type
+// Supports nested objects (as named types), arrays (with element-type
 // inference and field union across object elements), and scalar type mapping.
-func Convert(jsonSrc, rootName string) (string, error) {
+func Convert(jsonSrc, rootName, lang string) (string, error) {
 	if strings.TrimSpace(jsonSrc) == "" {
 		return "", fmt.Errorf("empty input")
 	}
 	if rootName == "" {
 		rootName = "Root"
+	}
+	if lang == "" {
+		lang = "go"
+	}
+	emit, ok := emitters[lang]
+	if !ok {
+		return "", fmt.Errorf("unsupported language %q", lang)
 	}
 
 	dec := json.NewDecoder(bytes.NewReader([]byte(jsonSrc)))
@@ -32,13 +41,15 @@ func Convert(jsonSrc, rootName string) (string, error) {
 		return "", fmt.Errorf("unexpected trailing data after JSON value")
 	}
 
-	var b strings.Builder
-	b.WriteString("type ")
-	b.WriteString(goName(rootName))
-	b.WriteString(" ")
-	b.WriteString(emit(n, 0))
-	b.WriteString("\n")
-	return b.String(), nil
+	c := newCollector()
+	c.rootName = goName(rootName)
+	root := c.build(n, rootName)
+	return emit(c, root), nil
+}
+
+// SupportedLanguages lists the target languages in display order.
+func SupportedLanguages() []string {
+	return []string{"go", "typescript", "python", "rust"}
 }
 
 type kind int
@@ -127,51 +138,6 @@ func parseArray(dec *json.Decoder) (*node, error) {
 		return nil, err
 	}
 	return n, nil
-}
-
-// emit renders a node as a Go type expression. indent is the current nesting
-// depth (in tab levels) for inline struct bodies.
-func emit(n *node, indent int) string {
-	switch n.kind {
-	case kString:
-		return "string"
-	case kNumber:
-		if n.isFloat {
-			return "float64"
-		}
-		return "int"
-	case kBool:
-		return "bool"
-	case kNull:
-		return "interface{}"
-	case kArray:
-		return "[]" + emit(mergeElems(n.elems), indent)
-	case kObject:
-		return emitStruct(n, indent)
-	default:
-		return "interface{}"
-	}
-}
-
-func emitStruct(n *node, indent int) string {
-	if len(n.keys) == 0 {
-		return "struct{}"
-	}
-	pad := strings.Repeat("\t", indent+1)
-	var b strings.Builder
-	b.WriteString("struct {\n")
-	for _, key := range n.keys {
-		b.WriteString(pad)
-		b.WriteString(goName(key))
-		b.WriteString(" ")
-		b.WriteString(emit(n.props[key], indent+1))
-		b.WriteString(" `json:\"")
-		b.WriteString(key)
-		b.WriteString("\"`\n")
-	}
-	b.WriteString(strings.Repeat("\t", indent))
-	b.WriteString("}")
-	return b.String()
 }
 
 // mergeElems infers a single element type from array elements. Objects are

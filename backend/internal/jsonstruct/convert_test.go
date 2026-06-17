@@ -1,8 +1,11 @@
 package jsonstruct
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
-func TestConvert(t *testing.T) {
+func TestConvertGo(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
@@ -21,29 +24,29 @@ func TestConvert(t *testing.T) {
 				"}\n",
 		},
 		{
-			name: "nested object",
+			name: "nested object becomes a named type",
 			in:   `{"user":{"id":1}}`,
 			want: "type Root struct {\n" +
-				"\tUser struct {\n" +
-				"\t\tID int `json:\"id\"`\n" +
-				"\t} `json:\"user\"`\n" +
+				"\tUser User `json:\"user\"`\n" +
+				"}\n\n" +
+				"type User struct {\n" +
+				"\tID int `json:\"id\"`\n" +
 				"}\n",
 		},
 		{
 			name: "slice of strings",
 			in:   `{"tags":["x","y"]}`,
-			want: "type Root struct {\n" +
-				"\tTags []string `json:\"tags\"`\n" +
-				"}\n",
+			want: "type Root struct {\n\tTags []string `json:\"tags\"`\n}\n",
 		},
 		{
-			name: "slice of objects merges fields",
+			name: "slice of objects merges fields, singular element name",
 			in:   `{"items":[{"a":1},{"b":2}]}`,
 			want: "type Root struct {\n" +
-				"\tItems []struct {\n" +
-				"\t\tA int `json:\"a\"`\n" +
-				"\t\tB int `json:\"b\"`\n" +
-				"\t} `json:\"items\"`\n" +
+				"\tItems []Item `json:\"items\"`\n" +
+				"}\n\n" +
+				"type Item struct {\n" +
+				"\tA int `json:\"a\"`\n" +
+				"\tB int `json:\"b\"`\n" +
 				"}\n",
 		},
 		{
@@ -60,7 +63,7 @@ func TestConvert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Convert(tt.in, tt.root)
+			got, err := Convert(tt.in, tt.root, "go")
 			if err != nil {
 				t.Fatalf("Convert error: %v", err)
 			}
@@ -71,11 +74,61 @@ func TestConvert(t *testing.T) {
 	}
 }
 
+func TestConvertLanguages(t *testing.T) {
+	in := `{"user_id":1,"tags":["x"]}`
+	cases := map[string][]string{
+		"typescript": {
+			"interface Root {",
+			"user_id: number;",
+			"tags: string[];",
+		},
+		"python": {
+			"@dataclass",
+			"class Root:",
+			"user_id: int",
+			"tags: List[str]",
+		},
+		"rust": {
+			"pub struct Root {",
+			"pub user_id: i64,",
+			"pub tags: Vec<String>,",
+		},
+	}
+	for lang, wants := range cases {
+		t.Run(lang, func(t *testing.T) {
+			got, err := Convert(in, "Root", lang)
+			if err != nil {
+				t.Fatalf("Convert(%s) error: %v", lang, err)
+			}
+			for _, w := range wants {
+				if !strings.Contains(got, w) {
+					t.Errorf("output missing %q:\n%s", w, got)
+				}
+			}
+		})
+	}
+}
+
+func TestConvertRustRename(t *testing.T) {
+	// camelCase key -> snake field + serde rename
+	got, err := Convert(`{"userName":"a"}`, "Root", "rust")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(got, `#[serde(rename = "userName")]`) ||
+		!strings.Contains(got, "pub user_name: String,") {
+		t.Errorf("rust rename not emitted:\n%s", got)
+	}
+}
+
 func TestConvertErrors(t *testing.T) {
 	for _, in := range []string{"", "  ", "{bad", `{} {}`} {
-		if _, err := Convert(in, ""); err == nil {
+		if _, err := Convert(in, "", "go"); err == nil {
 			t.Errorf("Convert(%q) expected error, got nil", in)
 		}
+	}
+	if _, err := Convert(`{"x":1}`, "Root", "cobol"); err == nil {
+		t.Error("unsupported language should error")
 	}
 }
 
