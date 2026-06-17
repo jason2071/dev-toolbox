@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ToolDef } from "../types";
-import { post } from "../../api";
+import { cachedPost } from "../../api";
 import { ui, badge } from "../../ui";
 import { CodeBlock } from "../../components/CodeBlock";
 
@@ -37,7 +37,9 @@ function JwtPage() {
     setBusy(true);
     setError("");
     try {
-      const r = await post<DecodeResult>("/api/tools/jwt/decode", { token });
+      const r = await cachedPost<DecodeResult>("/api/tools/jwt/decode", {
+        token,
+      });
       setRes(r);
     } catch (e) {
       setRes(null);

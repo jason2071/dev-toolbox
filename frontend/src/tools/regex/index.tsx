@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ToolDef } from "../types";
-import { post } from "../../api";
+import { cachedPost } from "../../api";
 import { ui } from "../../ui";
 
 interface Group {
@@ -38,7 +38,7 @@ function RegexPage() {
     setBusy(true);
     setError("");
     try {
-      const r = await post<TestResult>("/api/tools/regex/test", {
+      const r = await cachedPost<TestResult>("/api/tools/regex/test", {
         pattern,
         input,
         ignoreCase,
